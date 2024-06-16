@@ -18,9 +18,17 @@ $m365Groups | ForEach-Object {
   $m365GroupCollection += $ExportVw
 }
 
-$m365GroupCollection | Sort-Object "Group Name"
 
-$m365Group = $m365Groups[0]
-(Get-PnPMicrosoft365GroupOwner -Connection $con -Identity $m365Group.GroupId)
+$m365GroupsWithOnlyOneOwner = @()
+$m365GroupsWithOnlyOneOwner = $m365GroupCollection | where-object { $_.GroupOwners.Count -eq 1 }
+
+$m365GroupsWithOnlyOneOwner = @()
+foreach ($group in $m365Groups ) {
+  $groupOwners = (Get-PnPMicrosoft365GroupOwner -Connection $con -Identity $group.GroupId)
+  if ($groupOwners.Count -eq 1) {
+    $m365GroupsWithOnlyOneOwner += $group
+    Write-Host "Group: " $group.DisplayName " has only one owner"
+  }
+}
 
 
